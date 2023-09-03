@@ -1,7 +1,6 @@
 package com.example.jpa.user.controller;
 
 import com.example.jpa.notice.entity.Notice;
-import com.example.jpa.sample1.notice.entity.Notice;
 import com.example.jpa.notice.model.ResponseError;
 import com.example.jpa.notice.repository.NoticeRepository;
 import com.example.jpa.user.Repository.UserRepository;
@@ -117,7 +116,7 @@ public class ApiUserController {
         Uuser user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
 
         user.setPhone(userUpdate.getPhone());
-        user.setUpdataDate(LocalDateTime.now());
+        user.setUpdateDate(LocalDateTime.now());
         userRepository.save(user);
 
         return ResponseEntity.ok().build();
@@ -149,9 +148,11 @@ public class ApiUserController {
     공지사항 목록
      */
     @GetMapping("/api/user/{id}/notice")
-    public void userNotice(@PathVariable Long id){
+    public List<Notice> userNotice(@PathVariable Long id){
         Uuser user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
 
-        List<Notice> noticeList = noticeRepository.findByUser
+        List<Notice> noticeList = noticeRepository.findByUser(user);
+
+        return noticeList;
     }
 }

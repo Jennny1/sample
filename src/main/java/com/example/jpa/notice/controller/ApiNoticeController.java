@@ -1,19 +1,25 @@
 package com.example.jpa.notice.controller;
 
+import com.example.jpa.notice.entity.Notice;
 import com.example.jpa.notice.exception.AlreadyDeletedException;
-import com.example.jpa.notice.exception.NoticeNotFountException;
-import com.example.jpa.sample1.notice.entity.Notice;
 import com.example.jpa.notice.exception.DuplicateNoticeException;
+import com.example.jpa.notice.exception.NoticeNotFountException;
 import com.example.jpa.notice.model.NoticeInput;
-import lombok.RequiredArgsConstructor;
 import com.example.jpa.notice.repository.NoticeRepository;
+import java.time.LocalDateTime;
+import javax.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.time.LocalDateTime;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController

@@ -36,6 +36,6 @@ public class Uuser {
     private LocalDateTime regDate;
 
     @Column
-    private LocalDateTime updataDate;
+    private LocalDateTime updateDate;
 
 }

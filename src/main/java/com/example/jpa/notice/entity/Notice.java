@@ -1,5 +1,6 @@
 package com.example.jpa.notice.entity;
 
+import com.example.jpa.user.entity.Uuser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,10 @@ public class Notice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @ManyToOne
+    @JoinColumn
+    private Uuser user;
 
     @Column
     private String title;

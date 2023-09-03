@@ -1,12 +1,12 @@
 package com.example.jpa.notice.repository;
 
-import com.example.jpa.sample1.notice.entity.Notice;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
+import com.example.jpa.notice.entity.Notice;
+import com.example.jpa.user.entity.Uuser;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 // Jpa를 상속받는 interface
 @Repository
@@ -22,4 +22,6 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
     // 개수만 가져오도록 설정할 수도 있음
     int countByTitleAndContentsAndRegDateIsGreaterThanEqual(String titme, String contents, LocalDateTime regDate);
+
+    List<Notice> findByUser(Uuser user);
 }
