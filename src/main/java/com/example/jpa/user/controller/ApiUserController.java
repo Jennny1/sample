@@ -1,6 +1,7 @@
 package com.example.jpa.user.controller;
 
 import com.example.jpa.notice.entity.Notice;
+import com.example.jpa.notice.model.NoticeResponse;
 import com.example.jpa.notice.model.ResponseError;
 import com.example.jpa.notice.repository.NoticeRepository;
 import com.example.jpa.user.Repository.UserRepository;
@@ -150,13 +151,17 @@ public class ApiUserController {
     작성자의 아이디와 이름만 보여줌
      */
     @GetMapping("/api/user/{id}/notice")
-    public List<Notice> userNotice(@PathVariable Long id){
+    public List<NoticeResponse> userNotice(@PathVariable Long id){
         Uuser user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
 
         List<Notice> noticeList = noticeRepository.findByUser(user);
+        List<NoticeResponse> noticeResponseList = new ArrayList<>();
 
+        noticeList.stream().forEach((e) -> {
+            noticeResponseList.add(NoticeResponse.of(e));
+        });
         
 
-        return noticeList;
+        return noticeResponseList;
     }
 }
