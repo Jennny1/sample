@@ -46,6 +46,6 @@ public class Notice {
     private boolean deleted; // 삭제여부
 
     @Column
-    private LocalDateTime deletedDate; // 삭제 날짜
+    private LocalDateTime deleteDate; // 삭제 날짜
 
 }

@@ -146,12 +146,16 @@ public class ApiUserController {
     }
     /*
     공지사항 목록
+    삭제일, 삭제자 아이디는 보안상 보여주지 않음
+    작성자의 아이디와 이름만 보여줌
      */
     @GetMapping("/api/user/{id}/notice")
     public List<Notice> userNotice(@PathVariable Long id){
         Uuser user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
 
         List<Notice> noticeList = noticeRepository.findByUser(user);
+
+        
 
         return noticeList;
     }

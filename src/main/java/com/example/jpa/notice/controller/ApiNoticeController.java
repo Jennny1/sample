@@ -5,13 +5,18 @@ import com.example.jpa.notice.exception.AlreadyDeletedException;
 import com.example.jpa.notice.exception.DuplicateNoticeException;
 import com.example.jpa.notice.exception.NoticeNotFountException;
 import com.example.jpa.notice.model.NoticeInput;
+import com.example.jpa.notice.model.ResponseError;
 import com.example.jpa.notice.repository.NoticeRepository;
+import com.example.jpa.user.entity.Uuser;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -249,7 +254,7 @@ public class ApiNoticeController {
 
         // 삭제플래그
         notice.setDeleted(true);
-        notice.setDeletedDate(LocalDateTime.now());
+        notice.setDeleteDate(LocalDateTime.now());
         noticeRepository.save(notice);
     }
 
@@ -298,16 +303,16 @@ public class ApiNoticeController {
      */
 
 /*
+
     @PostMapping("/api/notice")
     public ResponseEntity<Object> addNotice(@RequestBody @Valid NoticeInput noticeInput, Errors errors){
 
 
         // 에러 잡기
         if (errors.hasErrors()) {
-            */
-/*(에러객체를 통째로 던져줌)
+
             return new ResponseEntity<>(errors.getAllErrors(), HttpStatus.BAD_REQUEST);
-             *//*
+
 
 
             List<ResponseError> responseErrors = new ArrayList<>();
@@ -330,9 +335,9 @@ public class ApiNoticeController {
 
         return ResponseEntity.ok().build();
     }
+
 */
 
-/*
 
     @PostMapping("/api/notice")
     public ResponseEntity<Object> addNotice(@RequestBody @Valid NoticeInput noticeInput, Errors errors){
@@ -340,9 +345,9 @@ public class ApiNoticeController {
 
         // 에러 잡기
         if (errors.hasErrors()) {
-            *//*(에러객체를 통째로 던져줌)
-            return new ResponseEntity<>(errors.getAllErrors(), HttpStatus.BAD_REQUEST);
-             *//*
+            // (에러객체를 통째로 던져줌)
+            //return new ResponseEntity<>(errors.getAllErrors(), HttpStatus.BAD_REQUEST);
+
 
             List<ResponseError> responseErrors = new ArrayList<>();
             errors.getAllErrors().stream().forEach(e -> {
@@ -360,10 +365,13 @@ public class ApiNoticeController {
                 .hits(0)
                 .likes(0)
                 .regDate(LocalDateTime.now())
+                .deleted(false)
+                .user(Uuser.builder().id(5).build())
                 .build());
 
         return ResponseEntity.ok().build();
     }
+/*
 
     @GetMapping("/api/notice/latest/{size}")
     public Page<Notice> noticeLatest(@PathVariable int size) {
@@ -372,7 +380,7 @@ public class ApiNoticeController {
         noticeRepository.findAll(PageRequest.of(0, size, Sort.Direction.DESC, "regDate"));
 
         return noticeList;
-    }*/
+
 
     @ExceptionHandler(DuplicateNoticeException.class)
     public ResponseEntity<?> handlerDuplicateNoticeException(DuplicateNoticeException exception) {
@@ -411,6 +419,7 @@ public class ApiNoticeController {
                         .regDate(LocalDateTime.now())
                         .build());
     }
+*/
 
 
 }
