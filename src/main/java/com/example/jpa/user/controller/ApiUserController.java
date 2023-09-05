@@ -6,8 +6,11 @@ import com.example.jpa.notice.model.ResponseError;
 import com.example.jpa.notice.repository.NoticeRepository;
 import com.example.jpa.user.Repository.UserRepository;
 import com.example.jpa.user.entity.Uuser;
+import com.example.jpa.user.exception.ExistsEmailExeption;
+import com.example.jpa.user.exception.PasswordNoMatchException;
 import com.example.jpa.user.exception.UserNotFoundException;
 import com.example.jpa.user.model.UserInput;
+import com.example.jpa.user.model.UserInputPassword;
 import com.example.jpa.user.model.UserResponse;
 import com.example.jpa.user.model.UserUpdate;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -61,6 +65,7 @@ public class ApiUserController {
 /*
 유저 정보 등록
  */
+/*
 
     @PostMapping("/api/user")
     public ResponseEntity<?> addUser(@RequestBody @Valid UserInput userInput, Errors errors) {
@@ -90,7 +95,45 @@ public class ApiUserController {
         //     new ResponseEntity<>(HttpStatus.OK);
     }
 
+*/
 
+    /*
+    사용자등록 (이메일 예외처리)
+     */
+/*    @PostMapping("/api/user")
+    public ResponseEntity<?> addUser(@RequestBody @Valid UserInput userInput, Errors errors) {
+
+        List<ResponseError> responseErrorList = new ArrayList<>();
+        if (errors.hasErrors()) {
+            errors.getAllErrors().stream().forEach((e) -> {
+                responseErrorList.add(ResponseError.of((FieldError)e));
+            });
+                return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+        }
+
+
+        if (userRepository.countByEmail(userInput.getEmail()) > 0) {
+          throw new ExistsEmailExeption("이미 존재하는 이메일");
+        }
+
+
+        Uuser user = Uuser.builder()
+            .email(userInput.getEmail())
+            .userName(userInput.getUserName())
+            .password(userInput.getPassword())
+            .phone((userInput.getPhone()))
+            .regDate(LocalDateTime.now())
+            .build();
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }*/
+
+    // ExceptionHandler
+    @ExceptionHandler(value = {UserNotFoundException.class, ExistsEmailExeption.class, PasswordNoMatchException.class})
+    public ResponseEntity<?> ExistsEmailExeptionHandler(RuntimeException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+
+    }
 
 
     /*
@@ -123,10 +166,6 @@ public class ApiUserController {
         return ResponseEntity.ok().build();
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<?> UserNotFoundExceptionHandler(UserNotFoundException exception) {
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-    }
 
     /*
     사용자 정보 조회 (가입한 아이디에 대한)
@@ -164,4 +203,72 @@ public class ApiUserController {
 
         return noticeResponseList;
     }
+
+
+    /*
+    비밀번호 수정
+    이전 비밀번호와 일치하는 경우 수정
+    일치하지 않는 경우에는 PasswordNoMatchException
+    "비밀번호가 일치하지 않습니다."
+     */
+
+    @PatchMapping("/api/user/{id}/pasword")
+    public ResponseEntity<?> updateUserPassword(@PathVariable long id, @RequestBody UserInputPassword userInputPassword, Errors errors){
+
+        // 에러처리
+        List<ResponseError> responseErrorList = new ArrayList<>();
+        if (errors.hasErrors()) {
+            // 에러가 있을 때 처리
+            errors.getAllErrors().forEach((e) -> {
+                responseErrorList.add(ResponseError.of((FieldError) e));
+
+            });
+            return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+        }
+
+        Uuser user = userRepository.findByIdAndPassword(id, userInputPassword.getPassword())
+            .orElseThrow(()-> new PasswordNoMatchException("비밀번호가 일치하지 않습니다."));
+
+
+        // 기존 비밀번호가 일치하였을 때
+        user.setPassword(userInputPassword.getNewPassword());
+        userRepository.save(user);
+
+        return ResponseEntity.ok().build();
+    }
+
+    /*
+    회원가입 시 비밀번호를 암호화하여 저장
+     */
+    @PostMapping("/api/user")
+    public ResponseEntity<?> addUser(@RequestBody @Valid UserInput userInput, Errors errors) {
+
+        List<ResponseError> responseErrorList = new ArrayList<>();
+        if (errors.hasErrors()) {
+            errors.getAllErrors().stream().forEach((e) -> {
+                responseErrorList.add(ResponseError.of((FieldError)e));
+            });
+            return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+        }
+
+
+        if (userRepository.countByEmail(userInput.getEmail()) > 0) {
+            throw new ExistsEmailExeption("이미 존재하는 이메일");
+        }
+
+
+        // 패스워드 암호화
+        BCryptPasswordEncoder
+
+        Uuser user = Uuser.builder()
+            .email(userInput.getEmail())
+            .userName(userInput.getUserName())
+            .password(userInput.getPassword())
+            .phone((userInput.getPhone()))
+            .regDate(LocalDateTime.now())
+            .build();
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+
+
 }
