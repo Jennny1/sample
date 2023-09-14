@@ -377,6 +377,10 @@ public class ApiUserController {
   }
 
 
+  /*
+  42. 좋아요한 공지사항 글 보기
+
+   */
 
 
 }
