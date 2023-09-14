@@ -479,8 +479,9 @@ public class ApiUserController {
 
 
   /*
-  45.
+  45.JWT 토큰 발행 시 발행 유효기간을 1개월로 저장
    */
+
   @PostMapping("/api/user/login")
   public ResponseEntity<?> createToken(@RequestBody @Valid UserLogin userLogin, Errors errors) {
 
@@ -502,9 +503,13 @@ public class ApiUserController {
       throw new PasswordNotMatchException("비밀번호가 일치하지 않습니다.");
     }
 
+    // 날짜 지정
+    LocalDateTime expiredDateTime = LocalDateTime.now().plusMonths(1);
+    Date expiredDate = java.sql.Timestamp.valueOf(expiredDateTime);
+
     // 토큰 발행시점
     String token = JWT.create()
-        .withExpiresAt(new Date())
+        .withExpiresAt(expiredDate)
         .withClaim("user_id", user.getId())
         .withSubject(user.getUserName())
         .withIssuer(user.getEmail())
@@ -513,4 +518,6 @@ public class ApiUserController {
     return ResponseEntity.ok().body(UserLoginToken.builder().token(token).build());
 
   }
+
+
 }
