@@ -12,6 +12,7 @@ import com.example.jpa.user.exception.ExistsEmailExeption;
 import com.example.jpa.user.exception.UserNotFoundException;
 import com.example.jpa.user.model.UserInput;
 import com.example.jpa.user.model.UserInputFind;
+import com.example.jpa.user.model.UserLogin;
 import com.example.jpa.user.model.UserResponse;
 import com.example.jpa.user.model.UserUpdate;
 import java.time.LocalDateTime;
@@ -396,5 +397,22 @@ public class ApiUserController {
 
 
   }
+
+
+  /*
+  43. 사용자 이메일과 비밀번호를 통해서 JWT를 발행
+  -JWT 토큰발행시 사용자 정보가 유효하지 않을 때 예외 발생
+  -사용자 정보가 존재하지 않는 경우 예외(UserNotFountException)
+  -비밀번호가 일치하지 않는 경우 예외(PasswordNotMatchException)
+   */
+
+
+  @PostMapping("/api/user/login")
+  public void createToken(UserLogin userLogin) {
+
+
+
+  }
+
 
 }
