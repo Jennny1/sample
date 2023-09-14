@@ -382,5 +382,15 @@ public class ApiUserController {
 
    */
 
+  @GetMapping("/api/user/{id}/notice/like")
+  public void likeNotice(@PathVariable Long id) {
+    // 유저 아이디로 검색
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
+
+
+
+
+  }
 
 }
