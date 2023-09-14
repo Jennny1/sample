@@ -1,8 +1,10 @@
 package com.example.jpa.user.controller;
 
 import com.example.jpa.notice.entity.Notice;
+import com.example.jpa.notice.entity.NoticeLike;
 import com.example.jpa.notice.model.NoticeResponse;
 import com.example.jpa.notice.model.ResponseError;
+import com.example.jpa.notice.repository.NoticeLikeRepository;
 import com.example.jpa.notice.repository.NoticeRepository;
 import com.example.jpa.user.Repository.UserRepository;
 import com.example.jpa.user.entity.User;
@@ -39,6 +41,7 @@ public class ApiUserController {
 
   private final UserRepository userRepository;
   private final NoticeRepository noticeRepository;
+  private final NoticeLikeRepository noticeLikeRepository;
 /*
 유저 정보 등록
  */
@@ -381,11 +384,14 @@ public class ApiUserController {
    */
 
   @GetMapping("/api/user/{id}/notice/like")
-  public void likeNotice(@PathVariable Long id) {
+  public List<NoticeLike> likeNotice(@PathVariable Long id) {
     // 유저 아이디로 검색
     User user = userRepository.findById(id)
         .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
 
+    List<NoticeLike> noticeLikeList = noticeLikeRepository.findByUser(user);
+
+    return noticeLikeList;
 
 
 
