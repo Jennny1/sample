@@ -5,19 +5,22 @@ import com.example.jpa.notice.model.NoticeResponse;
 import com.example.jpa.notice.model.ResponseError;
 import com.example.jpa.notice.repository.NoticeRepository;
 import com.example.jpa.user.Repository.UserRepository;
-import com.example.jpa.user.entity.Uuser;
+import com.example.jpa.user.entity.User;
 import com.example.jpa.user.exception.ExistsEmailExeption;
 import com.example.jpa.user.exception.PasswordNoMatchException;
 import com.example.jpa.user.exception.UserNotFoundException;
 import com.example.jpa.user.model.UserInput;
+import com.example.jpa.user.model.UserInputFind;
 import com.example.jpa.user.model.UserInputPassword;
 import com.example.jpa.user.model.UserResponse;
 import com.example.jpa.user.model.UserUpdate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -100,7 +103,7 @@ public class ApiUserController {
     /*
     사용자등록 (이메일 예외처리)
      */
-/*    @PostMapping("/api/user")
+    @PostMapping("/api/user")
     public ResponseEntity<?> addUser(@RequestBody @Valid UserInput userInput, Errors errors) {
 
         List<ResponseError> responseErrorList = new ArrayList<>();
@@ -117,7 +120,7 @@ public class ApiUserController {
         }
 
 
-        Uuser user = Uuser.builder()
+        User user = User.builder()
             .email(userInput.getEmail())
             .userName(userInput.getUserName())
             .password(userInput.getPassword())
@@ -126,10 +129,11 @@ public class ApiUserController {
             .build();
         userRepository.save(user);
         return ResponseEntity.ok().build();
-    }*/
+    }
 
     // ExceptionHandler
-    @ExceptionHandler(value = {UserNotFoundException.class, ExistsEmailExeption.class, PasswordNoMatchException.class})
+    @ExceptionHandler(value = {UserNotFoundException.class, ExistsEmailExeption.class,
+        PasswordNoMatchException.class})
     public ResponseEntity<?> ExistsEmailExeptionHandler(RuntimeException exception) {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
 
@@ -141,7 +145,8 @@ public class ApiUserController {
      */
 
     @PutMapping("/api/user/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserUpdate userUpdate, Errors errors) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserUpdate userUpdate,
+        Errors errors) {
 
         // 에러처리
         List<ResponseError> responseErrorList = new ArrayList<>();
@@ -154,10 +159,9 @@ public class ApiUserController {
             return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
         }
 
-
-
         // 사용자 정보가 없을 때 UserNotFountException 발생// "사용자 정보가 없습니다."
-        Uuser user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
 
         user.setPhone(userUpdate.getPhone());
         user.setUpdateDate(LocalDateTime.now());
@@ -174,9 +178,9 @@ public class ApiUserController {
 
     @GetMapping("/api/user/{id}")
     public UserResponse getUser(@PathVariable Long id) {
-        Uuser user = userRepository
-                    .findById(id)
-                    .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
+        User user = userRepository
+            .findById(id)
+            .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
 
         // UserResponse userResponse = new UserResponse(user);
         UserResponse userResponse = UserResponse.of(user);
@@ -184,14 +188,16 @@ public class ApiUserController {
         return userResponse;
 
     }
+
     /*
-    공지사항 목록
+    35. 공지사항 목록
     삭제일, 삭제자 아이디는 보안상 보여주지 않음
     작성자의 아이디와 이름만 보여줌
      */
     @GetMapping("/api/user/{id}/notice")
-    public List<NoticeResponse> userNotice(@PathVariable Long id){
-        Uuser user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
+    public List<NoticeResponse> userNotice(@PathVariable Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
 
         List<Notice> noticeList = noticeRepository.findByUser(user);
         List<NoticeResponse> noticeResponseList = new ArrayList<>();
@@ -199,7 +205,6 @@ public class ApiUserController {
         noticeList.stream().forEach((e) -> {
             noticeResponseList.add(NoticeResponse.of(e));
         });
-        
 
         return noticeResponseList;
     }
@@ -213,7 +218,8 @@ public class ApiUserController {
      */
 
     @PatchMapping("/api/user/{id}/pasword")
-    public ResponseEntity<?> updateUserPassword(@PathVariable long id, @RequestBody UserInputPassword userInputPassword, Errors errors){
+    public ResponseEntity<?> updateUserPassword(@PathVariable long id,
+        @RequestBody UserInputPassword userInputPassword, Errors errors) {
 
         // 에러처리
         List<ResponseError> responseErrorList = new ArrayList<>();
@@ -226,9 +232,8 @@ public class ApiUserController {
             return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
         }
 
-        Uuser user = userRepository.findByIdAndPassword(id, userInputPassword.getPassword())
-            .orElseThrow(()-> new PasswordNoMatchException("비밀번호가 일치하지 않습니다."));
-
+        User user = userRepository.findByIdAndPassword(id, userInputPassword.getPassword())
+            .orElseThrow(() -> new PasswordNoMatchException("비밀번호가 일치하지 않습니다."));
 
         // 기존 비밀번호가 일치하였을 때
         user.setPassword(userInputPassword.getNewPassword());
@@ -236,39 +241,98 @@ public class ApiUserController {
 
         return ResponseEntity.ok().build();
     }
+/*
+    // 패스워드 암호화
+    private String getEncryptPassword(String password) {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        return bCryptPasswordEncoder.encode(password);
+    }
 
-    /*
+    *//*
     회원가입 시 비밀번호를 암호화하여 저장
-     */
+     *//*
     @PostMapping("/api/user")
     public ResponseEntity<?> addUser(@RequestBody @Valid UserInput userInput, Errors errors) {
 
         List<ResponseError> responseErrorList = new ArrayList<>();
         if (errors.hasErrors()) {
             errors.getAllErrors().stream().forEach((e) -> {
-                responseErrorList.add(ResponseError.of((FieldError)e));
+                responseErrorList.add(ResponseError.of((FieldError) e));
             });
             return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
         }
-
 
         if (userRepository.countByEmail(userInput.getEmail()) > 0) {
             throw new ExistsEmailExeption("이미 존재하는 이메일");
         }
 
-
         // 패스워드 암호화
-        BCryptPasswordEncoder
+        String encryptPassword = getEncryptPassword(userInput.getPassword());
+        System.out.println("암호 : " + encryptPassword);
 
         Uuser user = Uuser.builder()
             .email(userInput.getEmail())
             .userName(userInput.getUserName())
-            .password(userInput.getPassword())
+            .password(encryptPassword)
             .phone((userInput.getPhone()))
             .regDate(LocalDateTime.now())
             .build();
         userRepository.save(user);
         return ResponseEntity.ok().build();
 
+    }
+    */
+    /*
+    회원탈퇴
+    회원정보가 존재하지 않을 때는 예외처리
+    사용자가 등록한 게시글이 있는 경우에는 회원 삭제가 되지 않음
+     */
+    @DeleteMapping("/api/user/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable long id) {
+
+        // 사용자 정보가 없을 때 UserNotFountException 발생// "사용자 정보가 없습니다."
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
+
+        
+        // 등록한 게시글이 있는지 확인
+
+        /*
+        39. 탈퇴(유저삭제)
+        회원정보가 존재하지 않는 경우 예외처리
+        만약 회원이 게시판에 글을 쓴 경우에는 회원삭제가 되지 않음
+         */
+        
+        try {
+            userRepository.delete(user);
+        } catch (DataIntegrityViolationException e) {
+            String message = "제약조건에 문제가 발생하였습니다.";
+            return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+
+        }catch (Exception e) {
+            String message = "회원 탈퇴 중 문제가 발생하였습니다.";
+            return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseEntity.ok().build();
+
+    }
+
+    /*
+    40. 사용자 이메일 검색, 찾기
+    이름과 전화번호에 해당하는 이메일을 찾는다.
+     */
+    @GetMapping("/api/user/")
+    public ResponseEntity<?> findUser(@RequestBody UserInputFind userInputFind) {
+        
+        // 유저 이름과 폰으로 검색
+        User user = userRepository.findByUserNameAndPhone(userInputFind.getUserName(), userInputFind.getPhone())
+            .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
+
+
+        // 검색 결과가 있을 때
+
+
+    }
 
 }

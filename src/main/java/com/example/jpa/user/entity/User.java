@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "uuser")
-public class Uuser {
+public class User {
     // 사용자 입력값: 이메일(ID), 이름, 비밀번호, 연락처
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

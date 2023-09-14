@@ -1,7 +1,7 @@
 package com.example.jpa.notice.repository;
 
 import com.example.jpa.notice.entity.Notice;
-import com.example.jpa.user.entity.Uuser;
+import com.example.jpa.user.entity.User;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,5 +23,5 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     // 개수만 가져오도록 설정할 수도 있음
     int countByTitleAndContentsAndRegDateIsGreaterThanEqual(String titme, String contents, LocalDateTime regDate);
 
-    List<Notice> findByUser(Uuser user);
+    List<Notice> findByUser(User user);
 }

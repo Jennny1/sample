@@ -2,12 +2,11 @@ package com.example.jpa.notice.controller;
 
 import com.example.jpa.notice.entity.Notice;
 import com.example.jpa.notice.exception.AlreadyDeletedException;
-import com.example.jpa.notice.exception.DuplicateNoticeException;
 import com.example.jpa.notice.exception.NoticeNotFountException;
 import com.example.jpa.notice.model.NoticeInput;
 import com.example.jpa.notice.model.ResponseError;
 import com.example.jpa.notice.repository.NoticeRepository;
-import com.example.jpa.user.entity.Uuser;
+import com.example.jpa.user.entity.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -339,8 +338,8 @@ public class ApiNoticeController {
 */
 
 
-    @PostMapping("/api/notice")
-    public ResponseEntity<Object> addNotice(@RequestBody @Valid NoticeInput noticeInput, Errors errors){
+    @PostMapping("/api/notice/{user}")
+    public ResponseEntity<Object> addNotice(@PathVariable long user, @RequestBody @Valid NoticeInput noticeInput, Errors errors){
 
 
         // 에러 잡기
@@ -366,7 +365,7 @@ public class ApiNoticeController {
                 .likes(0)
                 .regDate(LocalDateTime.now())
                 .deleted(false)
-                .user(Uuser.builder().id(5).build())
+                .user(User.builder().id(user).build())
                 .build());
 
         return ResponseEntity.ok().build();

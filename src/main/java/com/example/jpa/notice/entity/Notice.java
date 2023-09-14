@@ -1,6 +1,6 @@
 package com.example.jpa.notice.entity;
 
-import com.example.jpa.user.entity.Uuser;
+import com.example.jpa.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +22,7 @@ public class Notice {
 
     @ManyToOne
     @JoinColumn
-    private Uuser user;
+    private User user;
 
     @Column
     private String title;

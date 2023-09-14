@@ -1,11 +1,9 @@
 package com.example.jpa.notice.model;
 
 import com.example.jpa.notice.entity.Notice;
-import com.example.jpa.user.entity.Uuser;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
