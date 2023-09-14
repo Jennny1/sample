@@ -408,7 +408,10 @@ public class ApiUserController {
 
 
   @PostMapping("/api/user/login")
-  public void createToken(UserLogin userLogin) {
+  public void createToken(@RequestBody @Valid UserLogin userLogin) {
+    // 유저 아이디로 검색
+    User user = userRepository.findByEmail(userLogin.getEmail())
+        .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
 
 
 
