@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "uuser")
+@Table(name = "user")
 public class User {
     // 사용자 입력값: 이메일(ID), 이름, 비밀번호, 연락처
     @Id

@@ -14,6 +14,10 @@ import com.example.jpa.user.model.UserInputFind;
 import com.example.jpa.user.model.UserInputPassword;
 import com.example.jpa.user.model.UserResponse;
 import com.example.jpa.user.model.UserUpdate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -29,11 +33,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -330,9 +329,10 @@ public class ApiUserController {
             .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
 
 
-        // 검색 결과가 있을 때
+        // 검색 결과가 있을 때, 정보 리턴
+        UserResponse userResponse = UserResponse.of(user);
 
-
+        return ResponseEntity.ok().body(userResponse);
     }
 
 }
