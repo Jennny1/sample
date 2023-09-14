@@ -9,12 +9,14 @@ import com.example.jpa.notice.repository.NoticeRepository;
 import com.example.jpa.user.Repository.UserRepository;
 import com.example.jpa.user.entity.User;
 import com.example.jpa.user.exception.ExistsEmailExeption;
+import com.example.jpa.user.exception.PasswordNotMatchException;
 import com.example.jpa.user.exception.UserNotFoundException;
 import com.example.jpa.user.model.UserInput;
 import com.example.jpa.user.model.UserInputFind;
 import com.example.jpa.user.model.UserLogin;
 import com.example.jpa.user.model.UserResponse;
 import com.example.jpa.user.model.UserUpdate;
+import com.example.jpa.util.PasswordUtils;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -408,14 +410,29 @@ public class ApiUserController {
 
 
   @PostMapping("/api/user/login")
-  public void createToken(@RequestBody @Valid UserLogin userLogin) {
+  public ResponseEntity<?> createToken(@RequestBody @Valid UserLogin userLogin, Errors errors) {
+
+    List<ResponseError> responseErrorList = new ArrayList<>();
+    if (errors.hasErrors()) {
+      errors.getAllErrors().stream().forEach((e) -> {
+        responseErrorList.add(ResponseError.of((FieldError) e));
+      });
+      return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+    }
+
+
     // 유저 아이디로 검색
     User user = userRepository.findByEmail(userLogin.getEmail())
         .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
 
+    // 비밀번호 일치여부 확인 (암호화한 비밀번호를 비교)
 
+    if (!PasswordUtils.equalPassword(userLogin.getPassword(), user.getPassword())) {
+      throw new PasswordNotMatchException("비밀번호가 일치하지 않습니다.");
+    }
+
+    return ResponseEntity.ok().build();
 
   }
-
 
 }
