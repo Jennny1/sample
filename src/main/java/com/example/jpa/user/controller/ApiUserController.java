@@ -1,5 +1,7 @@
 package com.example.jpa.user.controller;
 
+import static com.example.jpa.Sample1Application.main;
+
 import com.example.jpa.notice.entity.Notice;
 import com.example.jpa.notice.model.NoticeResponse;
 import com.example.jpa.notice.model.ResponseError;
@@ -17,11 +19,13 @@ import com.example.jpa.user.model.UserUpdate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -240,14 +244,14 @@ public class ApiUserController {
 
         return ResponseEntity.ok().build();
     }
-/*
+
     // 패스워드 암호화
     private String getEncryptPassword(String password) {
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         return bCryptPasswordEncoder.encode(password);
     }
 
-    *//*
+    /*
     회원가입 시 비밀번호를 암호화하여 저장
      *//*
     @PostMapping("/api/user")
@@ -334,5 +338,36 @@ public class ApiUserController {
 
         return ResponseEntity.ok().body(userResponse);
     }
+
+
+    /*
+    41. 사용자 비밀번호 초기화 요청
+    아이디 정보 조회 후
+    비밀번호를 초기화한 이후에
+    문자로 전송하는 로직
+    초기화 비밀번호는 문자열 10자로 설정
+     */
+
+
+    private String getResetPassword(){
+        return UUID.randomUUID().toString().replaceAll("-", "").substring(0,10);
+
+    }
+
+    @GetMapping("/api/user/{id}/password/reset")
+    public void resetUserPassword(@PathVariable Long id) {
+
+        // 유저 아이디로 검색
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new UserNotFoundException("사용자 정보가 없습니다."));
+
+        // 비밀번호 초기화
+        String resetEncryptPassword = getEncryptPassword(getResetPassword());
+        user.setPassword(resetEncryptPassword);
+        userRepository.save(user);
+
+
+        }
+
 
 }
